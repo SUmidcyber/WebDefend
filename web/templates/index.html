@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Güvenlik Testi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            color: #333;
+            padding: 18px;
+        }
+        form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #result {
+            margin-top: 20px; 
+            padding: 10px;
+            margin-left: 20px;
+            background: #e9ecef;
+            border-radius: 4px;
+            text-align: center;
+        }
+        #result a {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        #result a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>URL Security Test</h1>
+    <form id="urlForm">
+        <label for="url">URL to Test:</label>
+        <input type="text" id="url" name="url" required>
+        <label for="tool">Select Tool:</label>
+        <select id="tool" name="tool">
+            <option value="sqlmap">SQLMap</option>
+            <option value="nuclei">Nuclei</option>
+            <option value="katana">Katana</option>
+            <option value="dirsearch">Dirsearch</option>
+        </select>
+        <button type="submit">To Test</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('urlForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const url = document.getElementById('url').value;
+            const tool = document.getElementById('tool').value;
+            const response = await fetch('/scan', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url, tool })
+            });
+            const result = await response.json();
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<p>${result.message}</p>`;
+            if (result.message.includes('Results saved to')) {
+                const filename = result.message.split(' ')[3];
+                const link = document.createElement('a');
+                link.href = `/download/${filename}`;
+                link.innerText = 'Download Results';
+                resultDiv.appendChild(link);
+            }
+        });
+    </script>
+</body>
+</html>
